@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+:root {
+    --header:rgba(0, 0, 0, 0.5);
+    --main: rgba(217, 217, 217, 0.3);
+    --lilSq: rgba(217, 217, 217, 1);
+    --x:rgba(33, 146, 255, 1);
+    --o:rgba(255, 205, 56, 1);
+}
+html, body {
+    height:100%;
+}
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Jua', sans-serif;
+}
+.container {
+    min-height:100%;
+    display:grid;
+    grid-template-rows:100px 1fr;
+}
+.header {
+    grid-row:1;
+    background:var(--header);
+    display:flex;
+    align-items:center;
+    padding:2em;
+}
+.main {
+    grid-row:2;
+    background:var(--main);
+}
+.title {
+    font-size:3.5rem;
+    color:white;
+}
+.cont {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top:clamp(5em, 45%, 15em);
+}
+.bigSquare {
+    position:relative;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(75px, 100px));
+    grid-template-rows: repeat(3, minmax(75px, 100px));
+    gap:min(5%, 60px);
+}
+.lilSquare {
+    background:var(--lilSq);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.piece {
+    font-size:3rem;
+}
+.X {
+    color:var(--x);
+    text-shadow:4px 4px 10px var(--x);
+}
+.O {
+    color:var(--o);
+    text-shadow:4px 4px 10px var(--o);
+}
