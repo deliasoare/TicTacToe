@@ -13,6 +13,31 @@
             <p class="title">Tic Tac Toe</p>
         </div>
         <div class="main">
+            <div class="startScreen">
+                <form action="">
+                    <div class="playerOne">
+                            <img class="controller" src="image/controller.svg">
+                            <li>
+                                <label for="name1">Name</label>
+                                <input type="text" placeholder="default: Player One" id="name1">
+                            </li>
+                            <li>
+                                <input type="checkbox" id="type1">
+                            </li>
+                    </div>
+                    <div class="playerTwo">
+                            <img class="controller" src="image/controller.svg">
+                            <li>
+                                <label for="name2">Name</label>
+                                <input type="text" placeholder="default: Player Two" id="name2">
+                            </li>
+                            <li>
+                                <input type="checkbox" id="type2">
+                            </li>
+                    </div>
+                </form>
+            </div>
+            <button type="submit" id="submit">START</button>
             <div class="cont">
                 <div class="bigSquare">
                     <div class="lilSquare" data-number="0"></div>

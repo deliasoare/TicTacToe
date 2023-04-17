@@ -1,6 +1,7 @@
-const Player = (number, piece)  => {
+const Player = (number, piece, name)  => {
     const getNumber =  () =>  number;
     const getPiece = () => piece;
+    const getName = () => name;
     return {getNumber, getPiece};
 }
 
