@@ -8,18 +8,55 @@ const playerOne = Player(1, 'X');
 const playerTwo = Player(2, 'O');
 
 const gameBoard = (() => {
-    const board = Array(9).fill(null);
+    const board = Array(3).fill(null);
+
+    for (let i = 0; i < board.length; i++)
+        board[i] = Array(3).fill(null);
     
     const getBoard = () => board;
 
     const addPiece = (number, player) => {
-        if (board[number] === null) {
-            board[number] = player.getPiece();
-            return 1;
-        }
+            let column = (number % 3);
+            let row = parseInt(number / 3);
+            // console.log({row, column})
+            board[row][column] = player.getPiece();
     }
     
-    return {getBoard, addPiece};
+    const checkForEnd = () => {
+        let i, j;
+        for (i = 0; i < board.length; i++) {
+            let iCheck = 0, iMarker;
+            let jCheck = 0, jMarker;
+            for (j = 0; j < board.length - 1; j++) {
+                if (board[i][j] === board[i][j+1] && board[i][j] !== null) {
+                    iCheck++;
+                    iMarker = board[i][j];
+                }
+    
+                if (board[j][i] === board[j+1][i] && board[j][i] !== null) {
+                    jCheck++;
+                    jMarker = board[j][i];
+                }
+
+            }
+            if (iCheck === 2)  return displayController.end('won', iMarker);
+            else if (jCheck === 2) return displayController.end('won', jMarker);
+        }
+
+        let count = 0;
+        for (i = 0; i < board.length; i++)
+            for (j = 0; j < board.length; j++)
+                if (board[i][j]) {
+                    count++;
+                    console.log(count);
+                }
+        setTimeout(() => {
+            if (count === 9) 
+                return displayController.end('draw');
+        }, 0);
+
+    }
+    return {getBoard, addPiece, checkForEnd};
 })();
 
 const displayController = (() => {
@@ -39,20 +76,28 @@ const displayController = (() => {
         console.log(HTMLpiece);
     }
 
-    const playRound = (HTMLpiece) => {
-            if (gameBoard.addPiece(HTMLpiece.dataset.number, getActivePlayer())) {
-                setTimeout( switchPlayerTurn(), 0);
-                addToScreen(HTMLpiece, getActivePlayer());
-            }
+    const end = (state, sign = 'none') => {
+        console.log({state, sign});
+        pieces.forEach(piece => {
+            piece.removeEventListener('click', play);
+        })
     }
 
-    return {playRound};
+    const playRound = (HTMLpiece) => {
+            gameBoard.addPiece(HTMLpiece.dataset.number, getActivePlayer());
+            addToScreen(HTMLpiece, getActivePlayer());
+            setTimeout( () => {
+                gameBoard.checkForEnd();
+                switchPlayerTurn();
+            }, 0);
+    }
+    return {playRound, end};
 })();
 
 const pieces = document.querySelectorAll('.lilSquare');
-
+function play(piece) {
+    displayController.playRound(piece.target);
+}
 pieces.forEach(piece => {
-    piece.addEventListener('click', function() {
-        displayController.playRound(piece);
-    });
+    piece.addEventListener('click', play, {once : true});
 });
