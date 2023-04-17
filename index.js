@@ -81,6 +81,9 @@ const displayController = (() => {
         pieces.forEach(piece => {
             piece.removeEventListener('click', play);
         })
+        const outcome = document.querySelector('.outcome');
+        if (state === 'won')
+            outcome.textContent = sign === playerOne.getPiece() ? 'Player One has won!' :  'Player Two has won!' 
     }
 
     const playRound = (HTMLpiece) => {
