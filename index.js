@@ -27,6 +27,8 @@ const gameBoard = (() => {
         for (i = 0; i < board.length; i++) {
             let iCheck = 0, iMarker;
             let jCheck = 0, jMarker;
+            let diagonalCheck = 0, diagMarker;
+            let diagonalCheck2 = 0, diagMarker2;
             for (j = 0; j < board.length - 1; j++) {
                 if (board[i][j] === board[i][j+1] && board[i][j] !== null) {
                     iCheck++;
@@ -38,9 +40,22 @@ const gameBoard = (() => {
                     jMarker = board[j][i];
                 }
 
+                if (board[j][j] === board[j+1][j+1] && board[j][j] !== null) {
+                    diagonalCheck++;
+                    diagMarker = board[j][j];
+                }
+                
+                if (board[j][board.length - j- 1]  === board[j+1][board.length - j - 2] && board[j][board.length - j - 1] !== null)
+                    diagonalCheck2++;
+                    console.log(diagonalCheck);
+                    diagMarker = board[j][board.length - j - 1];
             }
+
             if (iCheck === 2)  return displayController.end('won', iMarker);
             else if (jCheck === 2) return displayController.end('won', jMarker);
+            else if (diagonalCheck === 2) return displayController.end('won', diagMarker);
+            else if (diagonalCheck2 === 2) return displayController.end('won', diagMarker2);
+
         }
 
         let count = 0;
@@ -82,8 +97,8 @@ const displayController = (() => {
             piece.removeEventListener('click', play);
         })
         const outcome = document.querySelector('.outcome');
-        if (state === 'won')
-            outcome.textContent = sign === playerOne.getPiece() ? 'Player One has won!' :  'Player Two has won!' 
+        if (state === 'won') outcome.textContent = sign === playerOne.getPiece() ? 'Player One has won! Congratulations!' :  'Player Two has won! Congratulations!';
+        else outcome.textContent = 'This is a draw.'
     }
 
     const playRound = (HTMLpiece) => {

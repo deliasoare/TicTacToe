@@ -30,6 +30,11 @@ html, body {
 .main {
     grid-row:2;
     background:var(--main);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:8%;
 }
 .title {
     font-size:3.5rem;
@@ -39,7 +44,6 @@ html, body {
     display:flex;
     justify-content:center;
     align-items:center;
-    margin-top:clamp(5em, 45%, 15em);
 }
 .bigSquare {
     position:relative;
@@ -65,4 +69,8 @@ html, body {
 .O {
     color:var(--o);
     text-shadow:4px 4px 10px var(--o);
+}
+.outcome {
+    font-size:3rem;
+    color:var(--header);
 }
