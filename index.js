@@ -6,7 +6,11 @@ const Player = (number, piece, name, type)  => {
     return {getNumber, getPiece, getName, getType};
 }
 
+let playerOne, playerTwo;
 
+function playPlayer(piece) {
+    displayController.playRoundPlayer(piece.target, playerOne, playerTwo);
+}
 
 const gameBoard = (() => {
     const board = Array(3).fill(null);
@@ -48,14 +52,13 @@ const gameBoard = (() => {
                 
                 if (board[j][board.length - j- 1]  === board[j+1][board.length - j - 2] && board[j][board.length - j - 1] !== null)
                     diagonalCheck2++;
-                    console.log(diagonalCheck);
-                    diagMarker = board[j][board.length - j - 1];
+                    diagMarker2 = board[j][board.length - j - 1];
             }
 
             if (iCheck === 2)  return displayController.end('won', iMarker);
             else if (jCheck === 2) return displayController.end('won', jMarker);
-            else if (diagonalCheck === 2) return displayController.end('won', diagMarker);
-            else if (diagonalCheck2 === 2) return displayController.end('won', diagMarker2);
+            else if (diagonalCheck === 2) {return displayController.end('won', diagMarker);}
+            else if (diagonalCheck2 === 2) {return displayController.end('won', diagMarker2)};
 
         }
 
@@ -85,8 +88,7 @@ const displayController = (() => {
         else {
             document.querySelector('.startScreen').style.display = 'none';
             document.querySelector('.cont').style.display = 'flex';
-            start.style.display = 'block';
-
+            start.style.display = 'none';
         }
     }
     let activePlayer;
@@ -96,6 +98,7 @@ const displayController = (() => {
     }
 
     const getActivePlayer = () => activePlayer;
+
 
     const addToScreen = (HTMLpiece, player) => {
         const element = document.createElement('div');
@@ -108,30 +111,36 @@ const displayController = (() => {
     const end = (state, sign = 'none') => {
         console.log({state, sign});
         pieces.forEach(piece => {
-            piece.addEventListener('click', (event) => {
-                event.stopImmediatePropagation();
-            })
-
+            piece.removeEventListener('click', playPlayer)
         })
         const outcome = document.querySelector('.outcome');
-        if (state === 'won') outcome.textContent = sign === playerOne.getPiece() ? 'Player One has won! Congratulations!' :  'Player Two has won! Congratulations!';
+        if (state === 'won') outcome.textContent = sign === playerOne.getPiece() ? `${playerOne.getName()} has won! Congratulations!` : `${playerTwo.getName()} has won! Congratulations!`;
         else outcome.textContent = 'This is a draw.'
     }
 
-    const playRound = (HTMLpiece, playerOne, playerTwo) => {
-            switchPlayerTurn(playerOne, playerTwo);
+    const playRoundPlayer = (HTMLpiece, playerOne, playerTwo) => {
             gameBoard.addPiece(HTMLpiece.dataset.number, activePlayer);
             addToScreen(HTMLpiece, activePlayer);
             setTimeout( () => {
                 gameBoard.checkForEnd();
+                switchPlayerTurn(playerOne, playerTwo);
             }, 0);
     }
-    return {playRound, end, switchDisplay};
+
+    const playGame = () => {
+        if (activePlayer.getType() === '"Player"') {
+            pieces.forEach(piece => {
+                piece.addEventListener('click', playPlayer, {once : true});
+            });
+        }
+    }
+    return {playRoundPlayer, end, switchDisplay, getActivePlayer, playGame, switchPlayerTurn};
 })();
 
 
 const pieces = document.querySelectorAll('.lilSquare');
 const start = document.querySelector('#submit');
+
 start.addEventListener('click', function() {
     const type1 = getComputedStyle(document.querySelector('#type1'),'::before').getPropertyValue('content');
     const type2 = getComputedStyle(document.querySelector('#type2'),'::before').getPropertyValue('content');
@@ -139,18 +148,14 @@ start.addEventListener('click', function() {
     const name1 = document.querySelector('#name1').value !== '' ? document.querySelector('#name1').value : 'Player One';
     const name2 = document.querySelector('#name2').value !== '' ? document.querySelector('#name2').value : 'Player Two';
 
-    const playerOne = Player(1, 'X', name1, type1);
-    const playerTwo = Player(2, 'O', name2, type2);
+    playerOne = Player(1, 'X', name1, type1);
+    playerTwo = Player(2, 'O', name2, type2);
 
     displayController.switchDisplay();
-    
-    function play(piece) {
-        displayController.playRound(piece.target, playerOne, playerTwo);
-    }
 
-    pieces.forEach(piece => {
-        piece.addEventListener('click', play, {once : true});
-    });
+    displayController.switchPlayerTurn(playerOne, playerTwo);
+
+    displayController.playGame();
     
 })
 
