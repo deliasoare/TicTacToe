@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 let gameRunning = true;
 let winner = '';
 const Player = (number, piece, name, type)  => {
@@ -23,7 +25,7 @@ const gameBoard = (() => {
     const numEmptySpaces = () => emptySpaces.length;
 
     const changeEmptySpaces = (numberRemoved) => {
-        for (i = 0; i < emptySpaces.length; i++)
+        for (let i = 0; i < emptySpaces.length; i++)
             if(emptySpaces[i] === numberRemoved) 
                 emptySpaces.splice(i, 1);
     }
@@ -62,7 +64,6 @@ const gameBoard = (() => {
                     iCheck++;
                     iMarker = board[i][j];
                 }
-                console.log({ i, j, board: board[j][i] });
                 if (board[j][i] === board[j+1][i] && board[j][i] !== null) {
                     jCheck++;
                     jMarker = board[j][i];
@@ -161,80 +162,6 @@ const displayController = (() => {
         playRound(number);
     }
 
-    const minimax = (crrBdState, mark) => {
-        let emptySpots = gameBoard.getEmptySpaces();
-        const other_player = mark === 'X' ? 'O' : 'X';
-
-        let result = gameBoard.checkForEnd();
-        if (emptySpots.length === 0)
-            return 0;
-        if (result)
-            if (result === mark)
-                return 1;
-            else
-                return -1;
-        
-        const allTestPlayInfos = [];
-
-        for (let i = 0; i < emptySpots.length; i++) {
-            const currentTestPlay = {};
-            currentTestPlay.index = crrBdState[emptySpots[i]];
-            crrBdState[emptySpots[i]] = mark;
-            let res;
-            let otherMark = mark === 'X' ? 'O' : 'X';
-            if (mark === getActivePlayer().getPiece()) {
-                 res = minimax(crrBdState, otherMark);
-                 currentTestPlay.score = res;
-            }
-            else if (mark === other_player) {
-                res = minimax(crrBdState, mark);
-                currentTestPlay.score = res;
-            }
-
-            crrBdState[emptySpots[i]] = currentTestPlay.index;
-
-            allTestPlayInfos.push(currentTestPlay);
-
-          }
-
-
-            let bestTestPlay =  null;
-
-            let bestScore;
-
-            if (mark === getActivePlayer().getPiece()) {
-                bestScore = -1000;
-                for (let i = 0; i < allTestPlayInfos.length; i++) {
-                    if (allTestPlayInfos[i].score > bestScore) {
-                        bestScore = allTestPlayInfos[i].score;
-                        bestTestPlay = i;
-                    }
-                }
-            }
-            else if (mark === other_player) {
-                bestScore = 1000;
-                for (let i = 0; i < allTestPlayInfos.length; i++) {
-                    if (allTestPlayInfos[i].score < bestScore) {
-                        bestScore = allTestPlayInfos[i].score;
-                        bestTestPlay = i;
-                    }
-                }
-            }
-
-            return bestTestPlay;
-
-    }
-
-    const smartAI = () => {
-        cancelClick();
-        if (gameBoard.getEmptySpaces() === 9)
-            randomChoice();
-        else {
-            cancelClick();
-            number = minimax(gameBoard.getBoard(), getActivePlayer().getPiece());
-            playRound(number);
-        }
-    }
     const weakAI = () => {
         cancelClick();
         setTimeout(function() {
@@ -251,7 +178,7 @@ const displayController = (() => {
                 });
             }
             else {
-                smartAI();   
+                weakAI();   
             }
     }
     return {playRound, end, switchDisplay, getActivePlayer, playGame, switchPlayerTurn};
