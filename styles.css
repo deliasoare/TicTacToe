@@ -114,7 +114,7 @@ li + li {
 .startScreen, form {
     border-radius:30px;
 }
-#type1, #type2 {
+#type1, #type2, #type3, #type4 {
     width:min(50%, 150px);
     appearance:none;
     -webkit-appearance:none;
@@ -124,6 +124,26 @@ li + li {
     align-items:center;
     padding:1em;
     transition:1s;
+}
+
+#type3, #type4 {
+    width: min(35%, 100px);
+    border:2px solid grey;
+    margin-top:10%;
+    display:none;
+}
+#type3, #type4 {
+    background:green;
+}
+#type3::before, #type4::before {
+    content:'WEAK';
+}
+#type3:checked, #type4:checked {
+    background:yellow;
+    justify-content:flex-end;
+}
+#type3:checked::before, #type4:checked::before {
+    content:'SMART';
 }
 #type1::before, #type2::before {
     content:"Player";

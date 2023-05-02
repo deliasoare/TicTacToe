@@ -2,18 +2,24 @@
 
 let gameRunning = true;
 let winner = '';
-const Player = (number, piece, name, type)  => {
+let board = Array(3).fill(null);
+
+for (let i = 0; i < board.length; i++) 
+        board[i] = Array(3).fill(null);
+
+let aiPlayer, other_player;
+
+const Player = (number, piece, name, type, additionalType = undefined)  => {
     const getNumber =  () =>  number;
     const getPiece = () => piece;
     const getName = () => name;
     const getType = () => type;
-    return {getNumber, getPiece, getName, getType};
+    const getAdditionalType = () => additionalType;
+    return {getNumber, getPiece, getName, getType, getAdditionalType};
 }
 const gameBoard = (() => {
-    let board = Array(3).fill(null);
     let emptySpaces = [];
-    for (let i = 0; i < board.length; i++) 
-        board[i] = Array(3).fill(null);
+    
 
     for (i = 0; i < 9; i++)
         emptySpaces.push(i);
@@ -52,37 +58,37 @@ const gameBoard = (() => {
         outcome.style.display = 'none';
     }
     
-    const checkForEnd = () => {
+    const checkForEnd = (bord, ret="yes") => {
         let i, j;
-        for (i = 0; i < board.length; i++) {
+        for (i = 0; i < bord.length; i++) {
             let iCheck = 0, iMarker;
             let jCheck = 0, jMarker;
             let diagonalCheck = 0, diagMarker;
             let diagonalCheck2 = 0, diagMarker2;
-            for (j = 0; j < board.length - 1; j++) {
-                if (board[i][j] === board[i][j+1]&& board[i][j] !== null) {
+            for (j = 0; j < bord.length - 1; j++) {
+                if (board[i][j] === bord[i][j+1]&& bord[i][j] !== null) {
                     iCheck++;
-                    iMarker = board[i][j];
+                    iMarker = bord[i][j];
                 }
-                if (board[j][i] === board[j+1][i] && board[j][i] !== null) {
+                if (bord[j][i] === bord[j+1][i] && bord[j][i] !== null) {
                     jCheck++;
-                    jMarker = board[j][i];
+                    jMarker = bord[j][i];
                 }
 
-                if (board[j][j] === board[j+1][j+1] && board[j][j] !== null) {
+                if (bord[j][j] === bord[j+1][j+1] && bord[j][j] !== null) {
                     diagonalCheck++;
-                    diagMarker = board[j][j];
+                    diagMarker = bord[j][j];
                 }
                 
-                if (board[j][board.length - j- 1]  === board[j+1][board.length - j - 2] && board[j][board.length - j - 1] !== null)
+                if (bord[j][bord.length - j- 1]  === bord[j+1][bord.length - j - 2] && bord[j][bord.length - j - 1] !== null)
                     diagonalCheck2++;
-                    diagMarker2 = board[j][board.length - j - 1];
+                    diagMarker2 = bord[j][bord.length - j - 1];
             }
 
-            if (iCheck === 2)  {displayController.end('won', iMarker); return iMarker}
-            else if (jCheck === 2) {displayController.end('won', jMarker); return jMarker; }
-            else if (diagonalCheck === 2) {displayController.end('won', diagMarker); return diagMarker;}
-            else if (diagonalCheck2 === 2) {displayController.end('won', diagMarker2); return diagMarker2};
+            if (iCheck === 2)  {if (ret==="yes") {displayController.end('won', iMarker); };  return iMarker; }
+            else if (jCheck === 2) { if (ret==="yes") {displayController.end('won', jMarker);};  return jMarker; }
+            else if (diagonalCheck === 2) {if (ret==="yes") {displayController.end('won', diagMarker); } return diagMarker;}
+            else if (diagonalCheck2 === 2) {if (ret==="yes") {displayController.end('won', diagMarker2);} return diagMarker2};
 
         }
 
@@ -92,7 +98,7 @@ const gameBoard = (() => {
                 if (board[i][j]) 
                     count++;
         setTimeout(() => {
-            if (count === 9) 
+            if (count === 9  && ret === "yes") 
                 return displayController.end('draw');
         }, 0);
 
@@ -148,10 +154,10 @@ const displayController = (() => {
     }
 
     const playRound = (number) => {
-            gameBoard.addPiece(number, activePlayer);
+            gameBoard.addPiece(number, getActivePlayer());
+            gameBoard.checkForEnd(gameBoard.getBoard());
             addToScreen(number, activePlayer);
             setTimeout( () => {
-                gameBoard.checkForEnd();
                 switchPlayerTurn(playerOne, playerTwo);
                 playGame();
             }, 0);
@@ -167,10 +173,92 @@ const displayController = (() => {
         setTimeout(function() {
             randomChoice();
             }, 1000);
-    }   
-   
+    }  
+
+    const bestMove = () => {
+        if (!aiPlayer) {
+            aiPlayer = getActivePlayer().getPiece();
+            other_player = aiPlayer === 'X' ? 'O' : 'X';
+        }
+        let bestScore = -Infinity;
+        let move;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (board[i][j] === null) {
+                    board[i][j] = aiPlayer;
+
+                    let score;
+                    score = minimax(board, 0, false);
+                    board[i][j] = null;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = 3 * i + j;
+                    }
+                }
+            }
+            }
+        return move;
+        }
+    
+    const minimax = (board, depth, isMaximizing) => {
+        let counter = 0;
+        for (let i = 0; i < 3; i++)
+            for (let j = 0; j < 3; j++)
+                if (board[i][j])
+                    counter++;
+
+        if (gameBoard.checkForEnd(board, "no") === other_player) {
+            return -1;
+        }
+         else if (gameBoard.checkForEnd(board, "no") === aiPlayer) {
+            return 1;
+        }
+        else if (counter === 9) {
+            return 0;
+        }
+
+            if (isMaximizing) {
+                let bestScore = -10;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (board[i][j] === null) {
+                            board[i][j] = aiPlayer;
+                            let score = minimax(board, depth + 1, false);
+                                board[i][j] = null;
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                }
+                            
+                        }
+                    }
+                }
+                    return bestScore;
+            }
+            else {
+                let bestScore = 10;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (board[i][j] === null) {
+                            board[i][j] = other_player;
+                            let score = minimax(board, depth + 1, true);
+                                board[i][j] = null;
+                                if (score < bestScore) {
+                                    bestScore = score;
+                                }
+                            
+                        }
+                    }
+                }
+                return bestScore;
+            }
+    }
+    const smartAI = () => {
+        cancelClick();
+        number = bestMove();
+        playRound(number);
+    }
     const playGame = () => {
-        if (gameRunning) 
+        if (gameRunning)  
             if (getActivePlayer().getType() === '"Player"') {
                 pieces.forEach(piece => {
                         if (piece.innerHTML === '')
@@ -178,7 +266,11 @@ const displayController = (() => {
                 });
             }
             else {
-                weakAI();   
+                if (getActivePlayer().getAdditionalType() === '"SMART"') {
+                    smartAI();
+                }
+                else
+                    weakAI(); 
             }
     }
     return {playRound, end, switchDisplay, getActivePlayer, playGame, switchPlayerTurn};
@@ -195,18 +287,34 @@ const start = document.querySelector('#submit');
 const restart = document.querySelector('#restart');
 const bttns = [start, restart];
 const outcome = document.querySelector('.outcome');
+const type1 = document.querySelector('#type1');
+const type2= document.querySelector('#type2');
+const type3 = document.querySelector('#type3');
+const type4 = document.querySelector('#type4');
 
 
 bttns.forEach(bttn => {
     bttn.addEventListener('click', function() {
     const type1 = getComputedStyle(document.querySelector('#type1'),'::before').getPropertyValue('content');
     const type2 = getComputedStyle(document.querySelector('#type2'),'::before').getPropertyValue('content');
-
+    let type3, type4;
+    if ( getComputedStyle(document.querySelector('#type3'),'::before').getPropertyValue('content'))
+        type3 =  getComputedStyle(document.querySelector('#type3'),'::before').getPropertyValue('content');
+    if ( getComputedStyle(document.querySelector('#type4'),'::before').getPropertyValue('content'))
+        type4 =  getComputedStyle(document.querySelector('#type4'),'::before').getPropertyValue('content');
     const name1 = document.querySelector('#name1').value !== '' ? document.querySelector('#name1').value : 'Player One';
     const name2 = document.querySelector('#name2').value !== '' ? document.querySelector('#name2').value : 'Player Two';
 
-    playerOne = Player(1, 'X', name1, type1);
-    playerTwo = Player(2, 'O', name2, type2);
+    if (type3)
+        playerOne = Player(1, 'X', name1, type1, type3);
+    else 
+        playerOne = Player(1, 'X', name1, type1);
+    if (type4)
+        playerTwo = Player(2, 'O', name2, type2, type4);
+    else
+        playerTwo = Player(2, 'O', name2, type2);
+
+
 
     displayController.switchDisplay();
 
@@ -224,4 +332,38 @@ restart.addEventListener('click', function() {
     gameRunning = true;
     gameBoard.clearBoard();
 })
+
+type1.addEventListener('click', function() {
+    if (getComputedStyle(type1,'::before').getPropertyValue('content') === '"AI"') {
+        type3.style.display = 'flex';
+    }
+    else {
+        type3.style.display = 'none';
+    }
+
+})
+
+
+
+type2.addEventListener('click', function() {
+    if (getComputedStyle(type2,'::before').getPropertyValue('content') === '"AI"') {
+        type4.style.display = 'flex';
+    }
+    else 
+        type4.style.display = 'none';
+        
+})
+
+type3.addEventListener('click', function() {
+    if (getComputedStyle(type4, '::before').getPropertyValue('content') === '"SMART"') {
+        type3.checked = false;
+    }
+})
+
+type4.addEventListener('click', function() {
+    if (getComputedStyle(type3, '::before').getPropertyValue('content') === '"SMART"') {
+        type4.checked = false;
+    }
+})
+
 
