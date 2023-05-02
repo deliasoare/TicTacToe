@@ -112,12 +112,14 @@ const displayController = (() => {
             document.querySelector('.startScreen').style.display = 'flex';
             document.querySelector('.cont').style.display = 'none';
             document.querySelector('.gameScreen').style.display = 'none';
+            document.querySelector('.tip').style.display = 'block';
             start.style.display = 'block';
         }
         else {
             document.querySelector('.startScreen').style.display = 'none';
             document.querySelector('.cont').style.display = 'flex';
             document.querySelector('.gameScreen').style.display = 'block';
+            document.querySelector('.tip').style.display = 'none';
             start.style.display = 'none';
         }
     }
@@ -254,8 +256,11 @@ const displayController = (() => {
     }
     const smartAI = () => {
         cancelClick();
-        number = bestMove();
-        playRound(number);
+        setTimeout(function() {
+            number = bestMove();
+            playRound(number);
+        }, 500);
+    
     }
     const playGame = () => {
         if (gameRunning)  
@@ -365,5 +370,3 @@ type4.addEventListener('click', function() {
         type4.checked = false;
     }
 })
-
-
